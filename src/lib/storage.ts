@@ -1,4 +1,4 @@
-import { emptyForm, type FormState } from "./form";
+import { emptyForm, type FormState, type RowInput } from "./form";
 
 const KEY = "reist-vertrag-draft";
 
@@ -16,8 +16,21 @@ export function loadDraft(): FormState | null {
       mieter: { ...base.mieter, ...saved.mieter },
       extra: { ...base.extra, ...saved.extra },
       // If the equipment or service list changed since the draft was saved, start those fresh.
-      rows: saved.rows?.length === base.rows.length ? saved.rows : base.rows,
-      services: saved.services?.length === base.services.length ? saved.services : base.services,
+      // Same length: merge element-wise so bad entries can't break computeTotals.
+      rows:
+        saved.rows?.length === base.rows.length
+          ? base.rows.map((b, i) => {
+              const r: Partial<RowInput> = saved.rows![i] ?? {};
+              return {
+                preis: typeof r.preis === "string" ? r.preis : b.preis,
+                anzahl: typeof r.anzahl === "string" ? r.anzahl : b.anzahl,
+              };
+            })
+          : base.rows,
+      services:
+        saved.services?.length === base.services.length
+          ? saved.services.map((s) => (typeof s === "string" ? s : ""))
+          : base.services,
     };
   } catch {
     return null;

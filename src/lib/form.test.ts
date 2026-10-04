@@ -51,4 +51,22 @@ describe("computeTotals", () => {
     f.kaution = "50";
     expect(computeTotals(f).kaution).toBe("50");
   });
+
+  it("gives no Kaution for an unparseable manual Mietzins", () => {
+    const f = emptyForm();
+    f.rows[0] = { preis: "80.–", anzahl: "2" };
+    f.mietzins = "ca. 300";
+    const t = computeTotals(f);
+    expect(t.mietzins).toBe("ca. 300");
+    expect(t.kaution).toBe("");
+  });
+
+  it("keeps an emptied manual Mietzins empty", () => {
+    const f = emptyForm();
+    f.rows[0] = { preis: "80.–", anzahl: "2" };
+    f.mietzins = "";
+    const t = computeTotals(f);
+    expect(t.mietzins).toBe("");
+    expect(t.kaution).toBe("");
+  });
 });

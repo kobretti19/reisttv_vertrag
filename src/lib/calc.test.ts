@@ -14,12 +14,19 @@ describe("parseChf", () => {
     expect(parseChf("Fr. 45")).toBe(4500);
     expect(parseChf(" 45 ")).toBe(4500);
   });
+  it("accepts trailing dot, leading-dot decimals and CHF/Fr prefixes", () => {
+    expect(parseChf("80.")).toBe(8000);
+    expect(parseChf(".50")).toBe(50);
+    expect(parseChf("CHF 45")).toBe(4500);
+    expect(parseChf("Fr 45")).toBe(4500);
+  });
   it("returns null for empty or invalid input", () => {
     expect(parseChf("")).toBeNull();
     expect(parseChf("   ")).toBeNull();
     expect(parseChf("abc")).toBeNull();
     expect(parseChf("-5")).toBeNull();
     expect(parseChf("1.234")).toBeNull();
+    expect(parseChf("–")).toBeNull();
   });
 });
 

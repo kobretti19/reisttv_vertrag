@@ -2,11 +2,11 @@
 export function parseChf(input: string): number | null {
   const cleaned = input
     .trim()
-    .replace(/^Fr\.?\s*/i, "")
+    .replace(/^(Fr\.?|CHF)\s*/i, "")
     .replace(/['’\s]/g, "")
     .replace(/[.,]?[–-]+$/, "")
     .replace(",", ".");
-  if (!/^\d+(\.\d{1,2})?$/.test(cleaned)) return null;
+  if (!/^(\d+\.?\d{0,2}|\.\d{1,2})$/.test(cleaned)) return null;
   return Math.round(parseFloat(cleaned) * 100);
 }
 
