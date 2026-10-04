@@ -26,6 +26,8 @@ npx vitest run -t "kaution"           # tests matching a name
 - Money is handled as integer Rappen in `src/lib/calc.ts`. Input fields hold raw strings, which are parsed with `parseChf`.
 - `ContractForm` is loaded with `dynamic(..., { ssr: false })` because it reads the `localStorage` draft during its first render.
 - `rows` in state is index-aligned with `EQUIPMENT` and `services` with `SERVICES` (`src/data/equipment.ts`). Changing those lists resets old drafts' rows (see `loadDraft`).
+- Archive: "Speichern" stores contracts in localStorage (`reist-vertraege-archive`, array of `{id, savedAt, form}`; `src/lib/archive.ts`). `reist-vertrag-current-id` links the open form to its entry so Speichern updates it instead of copying; unsaved-changes detection compares `JSON.stringify` against a snapshot in `ContractForm`. The draft key stays separate.
+- Anything read from storage or an imported backup must go through `normalizeForm()` (`storage.ts`, shared with `loadDraft`). Backup = JSON download/upload of the archive in `ArchivePanel`; import merges by id, newer `savedAt` wins.
 - Fixed contract texts are in `src/data/texts.ts`. Article numbering follows the paper (no Art. 1 or 15).
 - Next.js 16 ships its docs in `node_modules/next/dist/docs/`. Read the relevant guide there before using Next APIs from memory.
 - `next.config.ts` sets `agentRules: false` so `npm run dev` doesn't auto-generate `AGENTS.md`/`CLAUDE.md` content.
