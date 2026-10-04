@@ -60,7 +60,7 @@
     padding: 12mm;
     background: #fff;
     box-shadow: 0 2px 8px rgb(0 0 0 / 0.2);
-    font-size: 10pt;
+    font-size: 9pt;
   }
 
   /* Inputs */
@@ -127,10 +127,13 @@
   }
   .equip th,
   .equip td {
-    height: 5.6mm;
+    height: 5.2mm;
     padding: 0 4px;
     border: 1px solid #000;
     text-align: left;
+  }
+  .equip .field {
+    padding: 0;
   }
   .equip thead th {
     font-weight: 700;
@@ -176,7 +179,7 @@
     display: grid;
     grid-template-columns: 16mm 1fr 34mm;
     gap: 4mm;
-    padding: 2.2mm 0;
+    padding: 1.5mm 0;
     line-height: 1.45;
   }
   .art-nr {
@@ -198,6 +201,9 @@
     background-size: 100% 7mm;
     font: inherit;
     resize: none;
+    overflow: hidden;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
   }
 }
 

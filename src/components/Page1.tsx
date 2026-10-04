@@ -20,7 +20,7 @@ export function Page1({ form, totals, update }: PageProps) {
         </ul>
       </header>
 
-      <div className="mt-6 flex items-end justify-between gap-6">
+      <div className="mt-4 flex items-end justify-between gap-6">
         <h1 className="title">Miet- und Servicevertrag</h1>
         <table className="grid-table an">
           <tbody>

@@ -14,7 +14,7 @@ export function EquipmentTable({ form, totals, update }: PageProps) {
     update({ services: form.services.map((s, j) => (j === i ? value : s)) });
 
   return (
-    <table className="equip mt-6">
+    <table className="equip mt-4">
       <colgroup>
         <col style={{ width: "22%" }} />
         <col style={{ width: "17%" }} />

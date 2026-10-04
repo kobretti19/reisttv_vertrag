@@ -7,7 +7,7 @@ export function CustomerFields({ mieter, onChange }: { mieter: Mieter; onChange:
   const set = (key: keyof Mieter) => (value: string) => onChange({ ...mieter, [key]: value });
 
   return (
-    <table className="grid-table cust mt-6 w-full">
+    <table className="grid-table cust mt-4 w-full">
       <tbody>
         <tr>
           <th>Name</th>

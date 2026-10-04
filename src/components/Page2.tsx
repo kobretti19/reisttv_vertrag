@@ -28,8 +28,10 @@ export function Page2({ form, totals, update }: PageProps) {
   return (
     <section className="sheet">
       <Article nr={2} title="Vorgesehener Gebrauch">
-        Die Mietgegenstände{" "}
-        <PrintField value={form.gebrauch} onChange={(v) => update({ gebrauch: v })} ariaLabel="Vorgesehener Gebrauch" line className="w-[75%]" />
+        <div className="flex items-end gap-1">
+          <span>Die Mietgegenstände</span>
+          <PrintField value={form.gebrauch} onChange={(v) => update({ gebrauch: v })} ariaLabel="Vorgesehener Gebrauch" line maxLength={60} className="min-w-0 flex-1" />
+        </div>
       </Article>
 
       <Article nr={3} title="Mietdauer">
