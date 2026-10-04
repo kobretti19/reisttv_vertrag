@@ -246,3 +246,242 @@
     line-height: 7mm;
   }
 }
+
+/* Mobile (screen only). Unlayered on purpose: must beat both the component layer and Tailwind utilities. */
+@media screen and (max-width: 760px) {
+  html,
+  body {
+    overflow-x: hidden;
+  }
+  .toolbar {
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    padding: 0.5rem;
+  }
+  .toolbar .btn {
+    padding: 0.35rem 0.7rem;
+  }
+  .confirm {
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  .sheets {
+    padding: 0.5rem 0.5rem 1rem;
+    gap: 0.75rem;
+  }
+  .sheet {
+    width: 100%;
+    min-height: auto;
+    padding: 12px;
+  }
+  .field,
+  .abmachungen {
+    font-size: 16px;
+    min-height: 1.75rem;
+  }
+
+  /* Header, title, "An" */
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .logo {
+    width: 85mm;
+    max-width: 100%;
+  }
+  .title-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+  .an {
+    width: 100%;
+  }
+
+  /* Customer table + footer: one cell per row */
+  .cust,
+  .cust tbody,
+  .cust tr,
+  .cust th,
+  .cust td,
+  .footer,
+  .footer tbody,
+  .footer tr,
+  .footer th,
+  .footer td {
+    display: block;
+    width: 100%;
+  }
+  .cust th,
+  .footer th {
+    padding-top: 3px;
+    border-bottom: 0;
+    font-size: 8pt;
+    color: #475569;
+  }
+  .cust td,
+  .footer td {
+    height: auto;
+    border-top: 0;
+  }
+  .cust tr + tr th {
+    border-top: 0;
+  }
+  .footer td:empty {
+    min-height: 10mm;
+  }
+  .footer th .flex {
+    color: inherit;
+  }
+
+  /* Equipment table as cards */
+  .equip,
+  .equip tbody,
+  .equip tr,
+  .equip td,
+  .equip th {
+    display: block;
+    width: 100%;
+  }
+  .equip thead,
+  .equip colgroup,
+  .equip td:empty {
+    display: none;
+  }
+  .equip td,
+  .equip th {
+    height: auto;
+    padding: 0;
+    border: 0;
+  }
+  .equip tr.item,
+  .equip tr.extra {
+    display: flow-root;
+    margin-bottom: 8px;
+    padding: 6px 8px 8px;
+    border: 1px solid #94a3b8;
+    border-radius: 6px;
+  }
+  .equip tr.item > td {
+    float: left;
+  }
+  .equip tr.item > td:nth-child(-n + 3) {
+    width: auto;
+    padding-right: 0.4em;
+    font-weight: 700;
+  }
+  .equip tr.item > td[data-label] {
+    width: calc(50% - 4px);
+  }
+  .equip tr.item > td:nth-child(5) {
+    margin-top: 4px;
+  }
+  .equip tr.item > td:nth-child(4) {
+    clear: left;
+    margin-top: 4px;
+    margin-right: 8px;
+  }
+  .equip tr.item > td:nth-child(6) {
+    clear: both;
+    width: 100%;
+    margin-top: 6px;
+  }
+  .equip td[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 8pt;
+    color: #475569;
+  }
+  .equip tr.item > td:nth-child(6) {
+    display: flex;
+    gap: 6px;
+    font-weight: 700;
+  }
+  .equip tr.item > td:nth-child(6)::before {
+    display: inline;
+    font-size: inherit;
+    color: inherit;
+  }
+  .equip tr.item > td:nth-child(6) .money,
+  .equip tr.extra > td:nth-child(6) .money {
+    flex: 0 0 auto;
+  }
+  .equip tr.item > td:nth-child(6) .money > :last-child,
+  .equip tr.extra > td:nth-child(6) .money > :last-child {
+    flex: 0 0 auto;
+  }
+  .equip tr.extra > td {
+    margin-top: 4px;
+  }
+  .equip tr.extra > td:nth-child(6) {
+    font-weight: 700;
+  }
+  .equip tr.svc {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    padding: 0 4px;
+  }
+  .equip tr.svc > td:first-child {
+    flex: 1;
+    width: auto;
+  }
+  .equip tr.svc > td:last-child {
+    flex: 0 0 48%;
+    width: 48%;
+  }
+  .equip tr.total {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+    padding: 8px;
+    border-radius: 6px;
+    background: #1e3a8a;
+    color: #fff;
+    font-size: 12pt;
+  }
+  .equip tr.total th,
+  .equip tr.total td:last-child {
+    width: auto;
+    border: 0;
+    font-weight: 700;
+    font-style: normal;
+  }
+  .equip tr.total .money > :last-child {
+    flex: 0 0 auto;
+  }
+
+  /* Sheet 2 articles */
+  .article {
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      "nr title"
+      "body body";
+    gap: 0 0.4em;
+    align-items: baseline;
+  }
+  .article > .art-nr {
+    grid-area: nr;
+  }
+  .article > .art-title {
+    grid-area: title;
+  }
+  .article > .art-body {
+    grid-area: body;
+    margin-top: 2px;
+  }
+  .article > .art-title:not(:empty)::before {
+    content: "\00b7\00a0";
+    font-weight: 400;
+  }
+  .article .flex {
+    flex-wrap: wrap;
+  }
+  .article .flex > .field {
+    min-width: 10rem;
+  }
+}

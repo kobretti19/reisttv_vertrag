@@ -11,7 +11,7 @@ export function Page1({ form, totals, update }: PageProps) {
 
   return (
     <section className="sheet">
-      <header className="flex items-start justify-between gap-6">
+      <header className="page-header flex items-start justify-between gap-6">
         <Image src="/reist_logo.png" alt="Radio TV Reist" width={640} height={232} className="logo" priority />
         <ul className="header-lines">
           {HEADER_LINES.map((line) => (
@@ -20,7 +20,7 @@ export function Page1({ form, totals, update }: PageProps) {
         </ul>
       </header>
 
-      <div className="mt-4 flex items-end justify-between gap-6">
+      <div className="title-row mt-4 flex items-end justify-between gap-6">
         <h1 className="title">Miet- und Servicevertrag</h1>
         <table className="grid-table an">
           <tbody>

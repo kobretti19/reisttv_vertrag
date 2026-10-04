@@ -7,7 +7,7 @@ function Article({ nr, title, bold = false, children }: { nr: number; title: str
   return (
     <div className="article">
       <div className="art-nr">Art. {nr}</div>
-      <div className={bold ? "font-bold" : ""}>{children}</div>
+      <div className={bold ? "art-body font-bold" : "art-body"}>{children}</div>
       <div className="art-title">{title}</div>
     </div>
   );
@@ -49,8 +49,9 @@ export function Page2({ form, totals, update }: PageProps) {
           onChange={(v) => update({ mietzins: v })}
           onReset={() => update({ mietzins: null })}
           ariaLabel="Mietzins"
+          suffix="."
         />
-        . Er ist im Voraus, spätestens am Tage vor der Montage zu bezahlen. Reparaturen, Montage und Demontage sind darin inbegriffen.
+        {" "}Er ist im Voraus, spätestens am Tage vor der Montage zu bezahlen. Reparaturen, Montage und Demontage sind darin inbegriffen.
       </Article>
 
       <Article nr={5} title="Transportkosten">
