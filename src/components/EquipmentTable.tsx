@@ -19,7 +19,7 @@ export function EquipmentTable({ form, totals, update }: PageProps) {
       <td data-label="Weiterer Mietgegenstand"><PrintField value={form.extra.mietgegenstand} onChange={(v) => setExtra({ mietgegenstand: v })} ariaLabel="Weiterer Mietgegenstand" /></td>
       <td data-label="Marke"><PrintField value={form.extra.marke} onChange={(v) => setExtra({ marke: v })} ariaLabel="Weitere Marke" /></td>
       <td data-label="Modell"><PrintField value={form.extra.modell} onChange={(v) => setExtra({ modell: v })} ariaLabel="Weiteres Modell" /></td>
-      <td data-label="Preis"><PrintField value={form.extra.preis} onChange={(v) => setExtra({ preis: v })} ariaLabel="Weiterer Preis" align="right" /></td>
+      <td data-label="Preis"><PrintField value={form.extra.preis} onChange={(v) => setExtra({ preis: v })} ariaLabel="Weiterer Preis" align="right" money /></td>
       <td data-label="Anzahl"><PrintField value={form.extra.anzahl} onChange={(v) => setExtra({ anzahl: v })} ariaLabel="Weitere Anzahl" align="right" /></td>
       <td data-label="Mietpreis">
         <div className="money">
@@ -85,7 +85,7 @@ export function EquipmentTable({ form, totals, update }: PageProps) {
             <td>
               <div className="money">
                 <span>Fr.</span>
-                <PrintField value={form.services[i]} onChange={(v) => setService(i, v)} ariaLabel={label} align="right" />
+                <PrintField value={form.services[i]} onChange={(v) => setService(i, v)} ariaLabel={label} align="right" money />
               </div>
             </td>
           </tr>

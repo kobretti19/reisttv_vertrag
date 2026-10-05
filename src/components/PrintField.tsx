@@ -1,3 +1,5 @@
+import { formatChf, parseChf } from "@/lib/calc";
+
 type Props = {
   value: string;
   onChange: (value: string) => void;
@@ -8,9 +10,11 @@ type Props = {
   /** Show a solid line under the field, also when printed (for blanks inside running text). */
   line?: boolean;
   maxLength?: number;
+  /** CHF amount: reformatted on blur ("80" → "80.–"). Unparseable text is left as typed. */
+  money?: boolean;
 };
 
-export function PrintField({ value, onChange, ariaLabel, className = "", placeholder, align = "left", line = false, maxLength }: Props) {
+export function PrintField({ value, onChange, ariaLabel, className = "", placeholder, align = "left", line = false, maxLength, money = false }: Props) {
   const classes = ["field", line ? "field-line" : "", align === "right" ? "text-right" : "", className]
     .filter(Boolean)
     .join(" ");
@@ -23,6 +27,14 @@ export function PrintField({ value, onChange, ariaLabel, className = "", placeho
       aria-label={ariaLabel}
       maxLength={maxLength}
       onChange={(e) => onChange(e.target.value)}
+      onBlur={
+        money
+          ? () => {
+              const rappen = parseChf(value);
+              if (rappen !== null && formatChf(rappen) !== value) onChange(formatChf(rappen));
+            }
+          : undefined
+      }
     />
   );
 }
