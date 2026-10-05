@@ -1,4 +1,5 @@
-import { EQUIPMENT, SERVICES } from "@/data/equipment";
+import { Fragment } from "react";
+import { EQUIPMENT, EXTRA_ROW_INDEX, SERVICES } from "@/data/equipment";
 import { formatChf } from "@/lib/calc";
 import type { ExtraRow, RowInput } from "@/lib/form";
 import { PrintField } from "./PrintField";
@@ -12,6 +13,22 @@ export function EquipmentTable({ form, totals, update }: PageProps) {
   const setExtra = (patch: Partial<ExtraRow>) => update({ extra: { ...form.extra, ...patch } });
   const setService = (i: number, value: string) =>
     update({ services: form.services.map((s, j) => (j === i ? value : s)) });
+
+  const extraRow = (
+    <tr className="extra">
+      <td data-label="Weiterer Mietgegenstand"><PrintField value={form.extra.mietgegenstand} onChange={(v) => setExtra({ mietgegenstand: v })} ariaLabel="Weiterer Mietgegenstand" /></td>
+      <td data-label="Marke"><PrintField value={form.extra.marke} onChange={(v) => setExtra({ marke: v })} ariaLabel="Weitere Marke" /></td>
+      <td data-label="Modell"><PrintField value={form.extra.modell} onChange={(v) => setExtra({ modell: v })} ariaLabel="Weiteres Modell" /></td>
+      <td data-label="Preis"><PrintField value={form.extra.preis} onChange={(v) => setExtra({ preis: v })} ariaLabel="Weiterer Preis" align="right" /></td>
+      <td data-label="Anzahl"><PrintField value={form.extra.anzahl} onChange={(v) => setExtra({ anzahl: v })} ariaLabel="Weitere Anzahl" align="right" /></td>
+      <td data-label="Mietpreis">
+        <div className="money">
+          <span>Fr.</span>
+          <span>{fmt(totals.extraPrice)}</span>
+        </div>
+      </td>
+    </tr>
+  );
 
   return (
     <table className="equip mt-4">
@@ -35,48 +52,37 @@ export function EquipmentTable({ form, totals, update }: PageProps) {
       </thead>
       <tbody>
         {EQUIPMENT.map((e, i) => (
-          <tr key={i} className="item">
-            <td>{e.category}</td>
-            <td>{e.brand}</td>
-            <td>{e.model}</td>
-            <td data-label="Preis">
-              <PrintField
-                value={form.rows[i].preis}
-                onChange={(v) => setRow(i, { preis: v })}
-                ariaLabel={`Preis ${e.brand} ${e.model}`.trim()}
-                align="right"
-              />
-            </td>
-            <td data-label="Anzahl">
-              <PrintField
-                value={form.rows[i].anzahl}
-                onChange={(v) => setRow(i, { anzahl: v })}
-                ariaLabel={`Anzahl ${e.brand} ${e.model}`.trim()}
-                align="right"
-              />
-            </td>
-            <td data-label="Mietpreis">
-              <div className="money">
-                <span>Fr.</span>
-                <span>{fmt(totals.rowPrices[i])}</span>
-              </div>
-            </td>
-          </tr>
+          <Fragment key={i}>
+            {i === EXTRA_ROW_INDEX && extraRow}
+            <tr className="item">
+              <td>{e.category}</td>
+              <td>{e.brand}</td>
+              <td>{e.model}</td>
+              <td data-label="Preis">
+                <PrintField
+                  value={form.rows[i].preis}
+                  onChange={(v) => setRow(i, { preis: v })}
+                  ariaLabel={`Preis ${e.brand} ${e.model}`.trim()}
+                  align="right"
+                />
+              </td>
+              <td data-label="Anzahl">
+                <PrintField
+                  value={form.rows[i].anzahl}
+                  onChange={(v) => setRow(i, { anzahl: v })}
+                  ariaLabel={`Anzahl ${e.brand} ${e.model}`.trim()}
+                  align="right"
+                />
+              </td>
+              <td data-label="Mietpreis">
+                <div className="money">
+                  <span>Fr.</span>
+                  <span>{fmt(totals.rowPrices[i])}</span>
+                </div>
+              </td>
+            </tr>
+          </Fragment>
         ))}
-
-        <tr className="extra">
-          <td data-label="Weiterer Mietgegenstand"><PrintField value={form.extra.mietgegenstand} onChange={(v) => setExtra({ mietgegenstand: v })} ariaLabel="Weiterer Mietgegenstand" /></td>
-          <td data-label="Marke"><PrintField value={form.extra.marke} onChange={(v) => setExtra({ marke: v })} ariaLabel="Weitere Marke" /></td>
-          <td data-label="Modell"><PrintField value={form.extra.modell} onChange={(v) => setExtra({ modell: v })} ariaLabel="Weiteres Modell" /></td>
-          <td data-label="Preis"><PrintField value={form.extra.preis} onChange={(v) => setExtra({ preis: v })} ariaLabel="Weiterer Preis" align="right" /></td>
-          <td data-label="Anzahl"><PrintField value={form.extra.anzahl} onChange={(v) => setExtra({ anzahl: v })} ariaLabel="Weitere Anzahl" align="right" /></td>
-          <td data-label="Mietpreis">
-            <div className="money">
-              <span>Fr.</span>
-              <span>{fmt(totals.extraPrice)}</span>
-            </div>
-          </td>
-        </tr>
 
         {SERVICES.map((label, i) => (
           <tr key={label} className="svc">
