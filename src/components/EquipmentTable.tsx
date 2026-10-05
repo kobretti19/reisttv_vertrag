@@ -58,14 +58,7 @@ export function EquipmentTable({ form, totals, update }: PageProps) {
               <td>{e.category}</td>
               <td>{e.brand}</td>
               <td>{e.model}</td>
-              <td data-label="Preis">
-                <PrintField
-                  value={form.rows[i].preis}
-                  onChange={(v) => setRow(i, { preis: v })}
-                  ariaLabel={`Preis ${e.brand} ${e.model}`.trim()}
-                  align="right"
-                />
-              </td>
+              <td data-label="Preis" className="num">{form.rows[i].preis}</td>
               <td data-label="Anzahl">
                 <PrintField
                   value={form.rows[i].anzahl}

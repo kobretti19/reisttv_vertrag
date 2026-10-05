@@ -26,9 +26,15 @@ describe("loadDraft", () => {
   it("round-trips a saved draft", () => {
     const f = emptyForm();
     f.mieter.name = "Muster";
-    f.rows[0] = { preis: "90", anzahl: "2" };
+    f.rows[0] = { ...f.rows[0], anzahl: "2" };
     saveDraft(f);
     expect(loadDraft()).toEqual(f);
+  });
+  it("ignores saved prices and uses the fixed list price", () => {
+    const rows = emptyForm().rows.map((r) => ({ ...r }));
+    rows[0] = { preis: "999", anzahl: "2" };
+    store.set(KEY, JSON.stringify({ rows }));
+    expect(loadDraft()!.rows[0]).toEqual({ preis: emptyForm().rows[0].preis, anzahl: "2" });
   });
   it("uses default rows when the length differs", () => {
     store.set(KEY, JSON.stringify({ rows: [{ preis: "1", anzahl: "1" }] }));

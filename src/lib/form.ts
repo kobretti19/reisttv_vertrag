@@ -1,6 +1,7 @@
 import { EQUIPMENT, SERVICES } from "../data/equipment";
 import { formatChf, kaution, parseChf, rowPrice, total } from "./calc";
 
+/** preis is always the fixed list price from EQUIPMENT (not editable). */
 export type RowInput = { preis: string; anzahl: string };
 
 export type ExtraRow = {

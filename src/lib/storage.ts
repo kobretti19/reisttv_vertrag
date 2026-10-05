@@ -17,14 +17,12 @@ export function normalizeForm(input: unknown): FormState {
     extra: { ...base.extra, ...asObj(saved.extra) },
     // If the equipment or service list changed since the draft was saved, start those fresh.
     // Same length: merge element-wise so bad entries can't break computeTotals.
+    // Prices are fixed, so a saved preis is ignored and the current list price is used.
     rows:
       Array.isArray(saved.rows) && saved.rows.length === base.rows.length
         ? base.rows.map((b, i) => {
             const r: Partial<RowInput> = asObj(saved.rows![i]);
-            return {
-              preis: typeof r.preis === "string" ? r.preis : b.preis,
-              anzahl: typeof r.anzahl === "string" ? r.anzahl : b.anzahl,
-            };
+            return { preis: b.preis, anzahl: typeof r.anzahl === "string" ? r.anzahl : b.anzahl };
           })
         : base.rows,
     services:
