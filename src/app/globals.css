@@ -39,6 +39,26 @@
     border-color: #dc2626;
     color: #fff;
   }
+  .nav {
+    display: flex;
+    gap: 0.25rem;
+    margin-right: 1rem;
+    padding-right: 1rem;
+    border-right: 1px solid rgb(255 255 255 / 0.3);
+  }
+  .nav-link {
+    padding: 0.4rem 0.75rem;
+    border-radius: 0.375rem;
+    color: #cbd5e1;
+    font-weight: 600;
+  }
+  .nav-link:hover {
+    color: #fff;
+  }
+  .nav-link.is-active {
+    background: rgb(255 255 255 / 0.15);
+    color: #fff;
+  }
   .confirm {
     display: flex;
     gap: 0.5rem;
@@ -140,6 +160,82 @@
   }
   .archive-msg-error {
     color: #b91c1c;
+  }
+
+  /* Price label (150 × 105 mm) */
+  .label-page {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 1.5rem 1rem;
+  }
+  .label-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 18rem;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    background: #fff;
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.2);
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  .label-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .label-input {
+    padding: 0.4rem 0.5rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.375rem;
+    font-size: 1rem;
+    font-weight: 400;
+  }
+  .label-input:focus {
+    outline: 2px solid #3b82f6;
+    border-color: transparent;
+  }
+  .label {
+    display: flex;
+    flex-direction: column;
+    width: 150mm;
+    height: 105mm;
+    padding: 8mm 10mm;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.2);
+    page: etikett;
+  }
+  .label-logo {
+    width: 100mm;
+    height: auto;
+    margin: 0 auto;
+  }
+  .label-name {
+    margin-top: 6mm;
+    font-size: 24pt;
+    font-weight: 700;
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+  }
+  .label-bottom {
+    display: flex;
+    gap: 6mm;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-top: auto;
+  }
+  .label-zusatz {
+    font-size: 16pt;
+  }
+  .label-price {
+    font-size: 32pt;
+    font-weight: 700;
+    white-space: nowrap;
   }
 
   /* A4 sheets */
@@ -341,6 +437,19 @@
   .abmachungen {
     line-height: 7mm;
   }
+  @page etikett {
+    size: 150mm 105mm;
+    margin: 0;
+  }
+  .label-page {
+    display: block;
+    padding: 0;
+  }
+  .label {
+    box-shadow: none;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
 }
 
 /* Mobile (screen only). Unlayered on purpose: must beat both the component layer and Tailwind utilities. */
@@ -356,6 +465,21 @@
   }
   .toolbar .btn {
     padding: 0.35rem 0.7rem;
+  }
+  .nav {
+    width: 100%;
+    justify-content: center;
+    margin: 0 0 0.25rem;
+    padding: 0 0 0.4rem;
+    border-right: 0;
+    border-bottom: 1px solid rgb(255 255 255 / 0.3);
+  }
+  .label-form {
+    width: 100%;
+  }
+  .label-wrap {
+    width: 100%;
+    overflow-x: auto;
   }
   .confirm {
     flex-wrap: wrap;

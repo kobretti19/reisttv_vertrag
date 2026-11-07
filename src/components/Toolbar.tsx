@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Nav } from "./Nav";
 
 type ToolbarProps = {
   onNew: () => void;
@@ -20,6 +21,7 @@ export function Toolbar({ onNew, onSave, onOpenArchive }: ToolbarProps) {
 
   return (
     <div className="toolbar no-print">
+      <Nav />
       <button type="button" className="btn btn-primary" onClick={() => window.print()}>
         Drucken
       </button>
