@@ -3,13 +3,14 @@ import {
   deleteLabel,
   emptyLabel,
   labelPrice,
+  labelsJson,
   loadLabels,
   mergeLabels,
   newLabelEntry,
   parseCopies,
+  parseLabelFile,
   saveLabel,
 } from "./label";
-import { labelsJson, parseLabelFile } from "./labelFile";
 
 describe("label JSON file", () => {
   it("round-trips entries", () => {

@@ -1,0 +1,16 @@
+// Cloudflare Worker "reisttv-vertrag". Workers Builds runs `npm run build`, then `npx wrangler deploy`.
+// Without this file wrangler would try to convert the app with OpenNext, which fails for a static export.
+{
+  "name": "reisttv-vertrag",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./out",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "run_worker_first": ["/api/*"]
+  },
+  // No id: wrangler creates the namespace on the first deploy and reuses it afterwards.
+  "kv_namespaces": [{ "binding": "LABELS" }],
+  "observability": { "enabled": true }
+}

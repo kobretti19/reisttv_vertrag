@@ -251,8 +251,29 @@
     padding-top: 0.75rem;
     border-top: 1px solid #e2e8f0;
   }
-  .label-file .archive-msg {
+  .label-file .archive-msg,
+  .label-login,
+  .label-backup {
     width: 100%;
+  }
+  .label-login {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    align-items: center;
+  }
+  .label-login .label-input {
+    flex: 1;
+    min-width: 8rem;
+    padding: 0.25rem 0.5rem;
+  }
+  .label-backup {
+    display: flex;
+    gap: 0.4rem;
+  }
+  .label-backup .btn {
+    font-weight: 400;
+    color: #475569;
   }
   .label-archive-info {
     display: flex;

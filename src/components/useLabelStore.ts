@@ -1,145 +1,106 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   loadLabels,
   mergeLabels,
+  parseLabelFile,
   removeLabel,
   storeLabels,
   upsertLabel,
   type LabelEntry,
 } from "@/lib/label";
-import {
-  createLabelFile,
-  fileApiSupported,
-  forgetLabelFile,
-  hasPermission,
-  isAbort,
-  openLabelFile,
-  parseLabelFile,
-  readLabelFile,
-  storedLabelFile,
-  writeLabelFile,
-  type LabelFileHandle,
-} from "@/lib/labelFile";
+import { getPassword, labelApi, LabelApiError, setPassword, type LabelOp } from "@/lib/labelApi";
 
-export type FileStatus = { name: string; ok: boolean } | null;
 export type StoreMessage = { text: string; error: boolean } | null;
 
+const errorText = (err: unknown) =>
+  err instanceof LabelApiError && err.kind === "auth"
+    ? "Falsches Passwort"
+    : err instanceof LabelApiError && err.kind === "offline"
+      ? "Keine Verbindung zum Server, nichts gespeichert"
+      : "Serverfehler, nichts gespeichert";
+
 /**
- * Saved labels. Always kept in localStorage; when a JSON file is connected (Chrome/Edge),
- * that file is the source of truth: every change reads it, applies the change and writes it back,
- * so several computers can share one file (e.g. in OneDrive).
+ * Saved labels. Logged in (password in localStorage), the list lives on the server
+ * (Cloudflare KV, shared by all devices) and localStorage is only a copy.
+ * Not logged in, it lives in this browser's localStorage only.
  */
 export function useLabelStore() {
   const [entries, setEntries] = useState<LabelEntry[]>([]);
-  const [file, setFile] = useState<FileStatus>(null);
+  const [online, setOnline] = useState(false);
   const [message, setMessage] = useState<StoreMessage>(null);
-  const [supported, setSupported] = useState(false);
-  const handle = useRef<LabelFileHandle | null>(null);
 
   const show = (text: string, error = false) => setMessage({ text, error });
-
-  /** Reads the file, merges in what only this browser has, writes both. */
-  const syncFromFile = async (h: LabelFileHandle) => {
-    const merged = mergeLabels(await readLabelFile(h), loadLabels());
-    await writeLabelFile(h, merged);
-    storeLabels(merged);
-    setEntries(merged);
+  const apply = (list: LabelEntry[]) => {
+    storeLabels(list);
+    setEntries(list);
   };
 
   useEffect(() => {
     setEntries(loadLabels());
-    if (!fileApiSupported()) return;
-    setSupported(true);
-    void (async () => {
-      const h = await storedLabelFile();
-      if (!h) return;
-      handle.current = h;
-      const ok = await hasPermission(h, false);
-      setFile({ name: h.name, ok });
-      if (!ok) return;
-      try {
-        await syncFromFile(h);
-      } catch {
-        show(`${h.name} konnte nicht gelesen werden`, true);
+    const pw = getPassword();
+    if (!pw) return;
+    setOnline(true);
+    labelApi(pw).then(apply, (err) => {
+      if (err instanceof LabelApiError && err.kind === "auth") {
+        setPassword(null);
+        setOnline(false);
       }
-    })();
+      show(err instanceof LabelApiError && err.kind === "offline" ? "Keine Verbindung zum Server" : errorText(err), true);
+    });
   }, []);
 
-  /** Applies a change to the file (if connected) and to localStorage. */
-  const commit = async (change: (list: LabelEntry[]) => LabelEntry[]) => {
-    const h = handle.current;
-    if (h) {
-      try {
-        if (!(await hasPermission(h, true))) throw new Error("no permission");
-        const next = change(await readLabelFile(h));
-        await writeLabelFile(h, next);
-        storeLabels(next);
-        setEntries(next);
-        setFile({ name: h.name, ok: true });
-        setMessage(null);
-        return;
-      } catch {
-        setFile({ name: h.name, ok: false });
-        show(`Nicht in ${h.name} gespeichert, nur in diesem Browser`, true);
-      }
+  /** Runs `op` on the server when logged in, otherwise on localStorage. Resolves to false if nothing was saved. */
+  const commit = async (op: LabelOp, local: (list: LabelEntry[]) => LabelEntry[]): Promise<boolean> => {
+    const pw = getPassword();
+    if (!pw) {
+      apply(local(loadLabels()));
+      return true;
     }
-    const next = change(loadLabels());
-    storeLabels(next);
-    setEntries(next);
-  };
-
-  const connect = async (pick: () => Promise<LabelFileHandle>) => {
     try {
-      const h = await pick();
-      handle.current = h;
-      await syncFromFile(h);
-      setFile({ name: h.name, ok: true });
-      show(`Verbunden mit ${h.name}`);
+      apply(await labelApi(pw, op));
+      setMessage(null);
+      return true;
     } catch (err) {
-      if (!isAbort(err)) show("Datei konnte nicht gelesen werden (keine Etiketten-Datei?)", true);
+      show(errorText(err), true);
+      return false;
     }
   };
 
   return {
     entries,
-    file,
+    online,
     message,
-    supported,
-    save: (entry: LabelEntry) => commit((list) => upsertLabel(list, entry)),
-    remove: (id: string) => commit((list) => removeLabel(list, id)),
-    createFile: () => connect(createLabelFile),
-    openFile: () => connect(openLabelFile),
-    /** After a browser restart the permission has to be granted again, with a click. */
-    allow: async () => {
-      const h = handle.current;
-      if (!h) return;
+    save: (entry: LabelEntry) => commit({ op: "save", entry }, (list) => upsertLabel(list, entry)),
+    remove: (id: string) => commit({ op: "delete", id }, (list) => removeLabel(list, id)),
+    /** Checks the password; labels saved in this browser before are uploaded (merged) once. */
+    login: async (pw: string) => {
       try {
-        if (!(await hasPermission(h, true))) return;
-        await syncFromFile(h);
-        setFile({ name: h.name, ok: true });
-        setMessage(null);
-      } catch {
-        show(`${h.name} konnte nicht gelesen werden`, true);
+        const local = loadLabels();
+        apply(local.length ? await labelApi(pw, { op: "import", entries: local }) : await labelApi(pw));
+        setPassword(pw);
+        setOnline(true);
+        show("Verbunden: Etiketten werden online gespeichert");
+      } catch (err) {
+        show(errorText(err).replace(", nichts gespeichert", ""), true);
       }
     },
-    disconnect: async () => {
-      handle.current = null;
-      setFile(null);
+    logout: () => {
+      setPassword(null);
+      setOnline(false);
       setMessage(null);
-      await forgetLabelFile();
     },
-    /** Fallback for browsers without file access: merge a downloaded/edited JSON file. */
-    importText: (text: string) => {
+    /** Merges a JSON backup into the archive. */
+    importText: async (text: string) => {
+      let incoming: LabelEntry[];
       try {
-        const merged = mergeLabels(loadLabels(), parseLabelFile(text));
-        storeLabels(merged);
-        setEntries(merged);
-        show(`${merged.length} Etiketten geladen`);
+        incoming = parseLabelFile(text);
       } catch {
-        show("Datei konnte nicht gelesen werden (keine Etiketten-Datei?)", true);
+        return show("Datei konnte nicht gelesen werden (keine Etiketten-Datei?)", true);
       }
+      const ok = await commit({ op: "import", entries: incoming }, (list) => mergeLabels(list, incoming));
+      if (ok) show(`${incoming.length} Etiketten geladen`);
     },
   };
 }

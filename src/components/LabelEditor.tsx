@@ -6,12 +6,12 @@ import {
   emptyLabel,
   labelName,
   labelPrice,
+  labelsJson,
   newLabelEntry,
   parseCopies,
   type Label,
   type LabelEntry,
 } from "@/lib/label";
-import { labelsJson } from "@/lib/labelFile";
 import { Nav } from "./Nav";
 import { useLabelStore } from "./useLabelStore";
 
@@ -45,7 +45,8 @@ export function LabelEditor() {
     snapshot: JSON.stringify(emptyLabel()),
   }));
   const store = useLabelStore();
-  const { entries, file } = store;
+  const { entries } = store;
+  const [pw, setPw] = useState("");
   const importRef = useRef<HTMLInputElement>(null);
   const [pending, setPending] = useState<{ kind: "open" | "delete"; id: string } | null>(null);
   const [saved, setSaved] = useState(false);
@@ -76,8 +77,11 @@ export function LabelEditor() {
           className="btn"
           onClick={() => {
             const entry = newLabelEntry(label, link.id);
-            setLink({ id: entry.id, snapshot: JSON.stringify(entry.label) });
-            void store.save(entry).then(() => setSaved(true));
+            void store.save(entry).then((ok) => {
+              if (!ok) return;
+              setLink({ id: entry.id, snapshot: JSON.stringify(entry.label) });
+              setSaved(true);
+            });
           }}
         >
           {saved ? "Gespeichert ✓" : "Speichern"}
@@ -171,64 +175,65 @@ export function LabelEditor() {
               })}
             </ul>
             <div className="label-file">
-              {store.supported ? (
-                file ? (
-                  <>
-                    <span>
-                      JSON-Datei: <strong>{file.name}</strong> {file.ok ? "✓" : "(kein Zugriff)"}
-                    </span>
-                    {!file.ok && (
-                      <button type="button" className="btn btn-primary" onClick={() => void store.allow()}>
-                        Zugriff erlauben
-                      </button>
-                    )}
-                    <button type="button" className="btn" onClick={() => void store.disconnect()}>
-                      Trennen
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <span>Etiketten zusätzlich in einer JSON-Datei speichern:</span>
-                    <button type="button" className="btn" onClick={() => void store.createFile()}>
-                      Neue Datei
-                    </button>
-                    <button type="button" className="btn" onClick={() => void store.openFile()}>
-                      Datei öffnen
-                    </button>
-                  </>
-                )
-              ) : (
+              {store.online ? (
                 <>
-                  <button
-                    type="button"
-                    className="btn"
-                    onClick={() => {
-                      const url = URL.createObjectURL(new Blob([labelsJson(entries)], { type: "application/json" }));
-                      const a = document.createElement("a");
-                      a.href = url;
-                      a.download = "reist-etiketten.json";
-                      a.click();
-                      setTimeout(() => URL.revokeObjectURL(url), 1000);
-                    }}
-                  >
-                    JSON herunterladen
+                  <span>Online gespeichert ✓ (für alle Geräte)</span>
+                  <button type="button" className="btn" onClick={store.logout}>
+                    Abmelden
                   </button>
-                  <button type="button" className="btn" onClick={() => importRef.current?.click()}>
-                    JSON laden
-                  </button>
-                  <input
-                    ref={importRef}
-                    type="file"
-                    accept=".json,application/json"
-                    hidden
-                    onChange={(ev) => {
-                      const f = ev.target.files?.[0];
-                      ev.target.value = "";
-                      if (f) void f.text().then(store.importText);
-                    }}
-                  />
                 </>
+              ) : (
+                <form
+                  className="label-login"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (pw) void store.login(pw).then(() => setPw(""));
+                  }}
+                >
+                  <span>Nur in diesem Browser gespeichert. Für alle Geräte online speichern:</span>
+                  <input
+                    className="label-input"
+                    type="password"
+                    placeholder="Passwort"
+                    autoComplete="current-password"
+                    value={pw}
+                    onChange={(e) => setPw(e.target.value)}
+                  />
+                  <button type="submit" className="btn btn-primary">
+                    Verbinden
+                  </button>
+                </form>
               )}
+              <div className="label-backup">
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => {
+                    const url = URL.createObjectURL(new Blob([labelsJson(entries)], { type: "application/json" }));
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = "reist-etiketten.json";
+                    a.click();
+                    setTimeout(() => URL.revokeObjectURL(url), 1000);
+                  }}
+                >
+                  Backup herunterladen
+                </button>
+                <button type="button" className="btn" onClick={() => importRef.current?.click()}>
+                  Backup laden
+                </button>
+                <input
+                  ref={importRef}
+                  type="file"
+                  accept=".json,application/json"
+                  hidden
+                  onChange={(ev) => {
+                    const f = ev.target.files?.[0];
+                    ev.target.value = "";
+                    if (f) void f.text().then(store.importText);
+                  }}
+                />
+              </div>
               {store.message && (
                 <span className={store.message.error ? "archive-msg archive-msg-error" : "archive-msg"}>
                   {store.message.text}

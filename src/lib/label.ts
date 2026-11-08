@@ -116,3 +116,13 @@ export function saveLabel(label: Label, id: string | null): LabelEntry {
 export function deleteLabel(id: string): void {
   storeLabels(removeLabel(loadLabels(), id));
 }
+
+/** Parses a label JSON backup. Empty text is an empty list; anything that isn't a JSON array throws. */
+export function parseLabelFile(text: string): LabelEntry[] {
+  if (!text.trim()) return [];
+  const data: unknown = JSON.parse(text);
+  if (!Array.isArray(data)) throw new Error("not a label file");
+  return parseLabelEntries(data);
+}
+
+export const labelsJson = (list: LabelEntry[]) => JSON.stringify(list, null, 2);
