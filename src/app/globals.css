@@ -199,9 +199,64 @@
     outline: 2px solid #3b82f6;
     border-color: transparent;
   }
+  .label-side {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 22rem;
+  }
+  .label-side .label-form {
+    width: 100%;
+  }
+  .label-archive {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    background: #fff;
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.2);
+    font-size: 0.875rem;
+  }
+  .label-archive h2 {
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+  .label-archive .archive-empty {
+    padding: 0.5rem 0;
+  }
+  .label-archive ul {
+    max-height: 24rem;
+    overflow-y: auto;
+  }
+  .label-archive li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.75rem;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem;
+    border-top: 1px solid #e2e8f0;
+  }
+  .label-archive li.is-current {
+    background: #eff6ff;
+  }
+  .label-archive .btn {
+    padding: 0.25rem 0.6rem;
+  }
+  .label-archive-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .label-archive-info span {
+    color: #64748b;
+  }
+
+  /* The label itself, laid out like the shop's paper label (Reist.pdf). */
   .label {
     display: flex;
     flex-direction: column;
+    align-items: center;
+    justify-content: center;
     width: 150mm;
     height: 105mm;
     padding: 8mm 10mm;
@@ -211,31 +266,21 @@
     page: etikett;
   }
   .label-logo {
-    width: 100mm;
+    width: 92mm;
     height: auto;
-    margin: 0 auto;
   }
-  .label-name {
-    margin-top: 6mm;
-    font-size: 24pt;
-    font-weight: 700;
+  .label-text {
+    max-width: 130mm;
+    margin-top: 3mm;
+    font-family: Calibri, Carlito, "Segoe UI", Arial, sans-serif;
     line-height: 1.15;
     overflow-wrap: anywhere;
   }
-  .label-bottom {
-    display: flex;
-    gap: 6mm;
-    align-items: baseline;
-    justify-content: space-between;
-    margin-top: auto;
+  .label-line {
+    font-size: 22pt;
   }
   .label-zusatz {
-    font-size: 16pt;
-  }
-  .label-price {
-    font-size: 32pt;
-    font-weight: 700;
-    white-space: nowrap;
+    font-size: 14pt;
   }
 
   /* A4 sheets */
@@ -447,8 +492,17 @@
   }
   .label {
     box-shadow: none;
+    break-after: page;
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
+  }
+  .label:last-child {
+    break-after: auto;
+  }
+}
+@media screen {
+  .label-copy {
+    display: none !important;
   }
 }
 
@@ -474,7 +528,7 @@
     border-right: 0;
     border-bottom: 1px solid rgb(255 255 255 / 0.3);
   }
-  .label-form {
+  .label-side {
     width: 100%;
   }
   .label-wrap {
