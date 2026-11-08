@@ -39,26 +39,33 @@ export function parseCopies(input: string): number {
   return Math.min(n, 50);
 }
 
-/** Saved labels, newest first. */
+const byNewest = (a: LabelEntry, b: LabelEntry) => Date.parse(b.savedAt) - Date.parse(a.savedAt);
+
+/** Reads saved labels from untrusted data (localStorage, JSON file), newest first. Non-arrays give []. */
+export function parseLabelEntries(data: unknown): LabelEntry[] {
+  if (!Array.isArray(data)) return [];
+  const out: LabelEntry[] = [];
+  for (const raw of data) {
+    if (!raw || typeof raw !== "object") continue;
+    const e = raw as Record<string, unknown>;
+    if (typeof e.id !== "string" || !e.id) continue;
+    const savedAt =
+      typeof e.savedAt === "string" && !Number.isNaN(Date.parse(e.savedAt)) ? e.savedAt : new Date(0).toISOString();
+    out.push({ id: e.id, savedAt, label: normalizeLabel(e.label) });
+  }
+  return out.sort(byNewest);
+}
+
+/** Saved labels from localStorage, newest first. */
 export function loadLabels(): LabelEntry[] {
   try {
-    const data: unknown = JSON.parse(localStorage.getItem(ARCHIVE_KEY) ?? "[]");
-    if (!Array.isArray(data)) return [];
-    const out: LabelEntry[] = [];
-    for (const raw of data) {
-      if (!raw || typeof raw !== "object") continue;
-      const e = raw as Record<string, unknown>;
-      if (typeof e.id !== "string" || !e.id) continue;
-      const savedAt = typeof e.savedAt === "string" && !Number.isNaN(Date.parse(e.savedAt)) ? e.savedAt : new Date(0).toISOString();
-      out.push({ id: e.id, savedAt, label: normalizeLabel(e.label) });
-    }
-    return out.sort((a, b) => Date.parse(b.savedAt) - Date.parse(a.savedAt));
+    return parseLabelEntries(JSON.parse(localStorage.getItem(ARCHIVE_KEY) ?? "[]"));
   } catch {
     return [];
   }
 }
 
-function writeLabels(list: LabelEntry[]): void {
+export function storeLabels(list: LabelEntry[]): void {
   try {
     localStorage.setItem(ARCHIVE_KEY, JSON.stringify(list));
   } catch {
@@ -75,13 +82,37 @@ function newId(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
-/** Creates a new entry, or updates the one with `id`. */
+/** A new entry for `label`, or the updated version of entry `id`. */
+export function newLabelEntry(label: Label, id: string | null): LabelEntry {
+  return { id: id ?? newId(), savedAt: new Date().toISOString(), label: { ...label } };
+}
+
+/** Puts `entry` first, replacing an older version with the same id. */
+export function upsertLabel(list: LabelEntry[], entry: LabelEntry): LabelEntry[] {
+  return [entry, ...list.filter((e) => e.id !== entry.id)];
+}
+
+export function removeLabel(list: LabelEntry[], id: string): LabelEntry[] {
+  return list.filter((e) => e.id !== id);
+}
+
+/** Union by id; when both lists have an entry, the newer savedAt wins. */
+export function mergeLabels(a: LabelEntry[], b: LabelEntry[]): LabelEntry[] {
+  const byId = new Map(a.map((e) => [e.id, e]));
+  for (const e of b) {
+    const have = byId.get(e.id);
+    if (!have || Date.parse(e.savedAt) > Date.parse(have.savedAt)) byId.set(e.id, e);
+  }
+  return [...byId.values()].sort(byNewest);
+}
+
+/** Creates a new entry in localStorage, or updates the one with `id`. */
 export function saveLabel(label: Label, id: string | null): LabelEntry {
-  const entry: LabelEntry = { id: id ?? newId(), savedAt: new Date().toISOString(), label: { ...label } };
-  writeLabels([entry, ...loadLabels().filter((e) => e.id !== entry.id)]);
+  const entry = newLabelEntry(label, id);
+  storeLabels(upsertLabel(loadLabels(), entry));
   return entry;
 }
 
 export function deleteLabel(id: string): void {
-  writeLabels(loadLabels().filter((e) => e.id !== id));
+  storeLabels(removeLabel(loadLabels(), id));
 }

@@ -242,6 +242,18 @@
   .label-archive .btn {
     padding: 0.25rem 0.6rem;
   }
+  .label-file {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    align-items: center;
+    margin-top: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #e2e8f0;
+  }
+  .label-file .archive-msg {
+    width: 100%;
+  }
   .label-archive-info {
     display: flex;
     flex-direction: column;
@@ -261,6 +273,8 @@
     height: 105mm;
     padding: 8mm 10mm;
     overflow: hidden;
+    /* Cut line. Inside the 150 × 105 mm box (border-box), so the label size stays exact. */
+    border: 0.3mm solid #000;
     background: #fff;
     box-shadow: 0 2px 8px rgb(0 0 0 / 0.2);
     page: etikett;

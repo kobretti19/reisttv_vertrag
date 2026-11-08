@@ -1,19 +1,19 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
-  deleteLabel,
   emptyLabel,
   labelName,
   labelPrice,
-  loadLabels,
+  newLabelEntry,
   parseCopies,
-  saveLabel,
   type Label,
   type LabelEntry,
 } from "@/lib/label";
+import { labelsJson } from "@/lib/labelFile";
 import { Nav } from "./Nav";
+import { useLabelStore } from "./useLabelStore";
 
 const FIELDS: { key: keyof Label; label: string; placeholder: string; decimal?: boolean }[] = [
   { key: "marke", label: "Marke", placeholder: "Metz" },
@@ -44,11 +44,12 @@ export function LabelEditor() {
     id: null,
     snapshot: JSON.stringify(emptyLabel()),
   }));
-  const [entries, setEntries] = useState<LabelEntry[]>([]);
+  const store = useLabelStore();
+  const { entries, file } = store;
+  const importRef = useRef<HTMLInputElement>(null);
   const [pending, setPending] = useState<{ kind: "open" | "delete"; id: string } | null>(null);
   const [saved, setSaved] = useState(false);
 
-  useEffect(() => setEntries(loadLabels()), []);
   useEffect(() => {
     if (!saved) return;
     const t = setTimeout(() => setSaved(false), 2000);
@@ -74,10 +75,9 @@ export function LabelEditor() {
           type="button"
           className="btn"
           onClick={() => {
-            const entry = saveLabel(label, link.id);
+            const entry = newLabelEntry(label, link.id);
             setLink({ id: entry.id, snapshot: JSON.stringify(entry.label) });
-            setEntries(loadLabels());
-            setSaved(true);
+            void store.save(entry).then(() => setSaved(true));
           }}
         >
           {saved ? "Gespeichert ✓" : "Speichern"}
@@ -142,8 +142,7 @@ export function LabelEditor() {
                           onClick={() => {
                             setPending(null);
                             if (isPending === "open") return open(e);
-                            deleteLabel(e.id);
-                            setEntries(loadLabels());
+                            void store.remove(e.id);
                             if (e.id === link.id) setLink((l) => ({ ...l, id: null }));
                           }}
                         >
@@ -171,6 +170,71 @@ export function LabelEditor() {
                 );
               })}
             </ul>
+            <div className="label-file">
+              {store.supported ? (
+                file ? (
+                  <>
+                    <span>
+                      JSON-Datei: <strong>{file.name}</strong> {file.ok ? "✓" : "(kein Zugriff)"}
+                    </span>
+                    {!file.ok && (
+                      <button type="button" className="btn btn-primary" onClick={() => void store.allow()}>
+                        Zugriff erlauben
+                      </button>
+                    )}
+                    <button type="button" className="btn" onClick={() => void store.disconnect()}>
+                      Trennen
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <span>Etiketten zusätzlich in einer JSON-Datei speichern:</span>
+                    <button type="button" className="btn" onClick={() => void store.createFile()}>
+                      Neue Datei
+                    </button>
+                    <button type="button" className="btn" onClick={() => void store.openFile()}>
+                      Datei öffnen
+                    </button>
+                  </>
+                )
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    className="btn"
+                    onClick={() => {
+                      const url = URL.createObjectURL(new Blob([labelsJson(entries)], { type: "application/json" }));
+                      const a = document.createElement("a");
+                      a.href = url;
+                      a.download = "reist-etiketten.json";
+                      a.click();
+                      setTimeout(() => URL.revokeObjectURL(url), 1000);
+                    }}
+                  >
+                    JSON herunterladen
+                  </button>
+                  <button type="button" className="btn" onClick={() => importRef.current?.click()}>
+                    JSON laden
+                  </button>
+                  <input
+                    ref={importRef}
+                    type="file"
+                    accept=".json,application/json"
+                    hidden
+                    onChange={(ev) => {
+                      const f = ev.target.files?.[0];
+                      ev.target.value = "";
+                      if (f) void f.text().then(store.importText);
+                    }}
+                  />
+                </>
+              )}
+              {store.message && (
+                <span className={store.message.error ? "archive-msg archive-msg-error" : "archive-msg"}>
+                  {store.message.text}
+                </span>
+              )}
+            </div>
           </section>
         </div>
         <div className="label-wrap">
