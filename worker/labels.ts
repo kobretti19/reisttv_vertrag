@@ -33,11 +33,15 @@ async function read(kv: KV): Promise<LabelEntry[]> {
 
 /** GET → the list. POST {op:"save",entry} | {op:"delete",id} | {op:"import",entries} → the new list. */
 export async function onRequest({ request, env }: Ctx): Promise<Response> {
-  if (!env.LABELS || !env.LABELS_PASSWORD) return json({ error: "not configured" }, 500);
+  // Names only, never values: tells whoever sets up the Worker what is still missing.
+  const missing = [!env.LABELS && "LABELS", !env.LABELS_PASSWORD && "LABELS_PASSWORD"].filter(Boolean);
+  const kv = env.LABELS;
+  const password = env.LABELS_PASSWORD;
+  if (!kv || !password) return json({ error: "not configured", missing }, 500);
   const auth = request.headers.get("authorization") ?? "";
-  if (!same(auth, `Bearer ${env.LABELS_PASSWORD}`)) return json({ error: "unauthorized" }, 401);
+  if (!same(auth, `Bearer ${password}`)) return json({ error: "unauthorized" }, 401);
 
-  if (request.method === "GET") return json(await read(env.LABELS));
+  if (request.method === "GET") return json(await read(kv));
   if (request.method !== "POST") return json({ error: "method not allowed" }, 405);
 
   let body: Record<string, unknown>;
@@ -49,7 +53,7 @@ export async function onRequest({ request, env }: Ctx): Promise<Response> {
     return json({ error: "bad request" }, 400);
   }
 
-  const list = await read(env.LABELS);
+  const list = await read(kv);
   let next: LabelEntry[];
   if (body.op === "save") {
     const [entry] = parseLabelEntries([body.entry]);
@@ -62,6 +66,6 @@ export async function onRequest({ request, env }: Ctx): Promise<Response> {
   } else {
     return json({ error: "bad request" }, 400);
   }
-  await env.LABELS.put(KEY, JSON.stringify(next));
+  await kv.put(KEY, JSON.stringify(next));
   return json(next);
 }

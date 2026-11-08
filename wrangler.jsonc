@@ -12,5 +12,7 @@
   },
   // No id: wrangler creates the namespace on the first deploy and reuses it afterwards.
   "kv_namespaces": [{ "binding": "LABELS" }],
+  // Keep variables set in the dashboard (LABELS_PASSWORD may be set as Text instead of Secret).
+  "keep_vars": true,
   "observability": { "enabled": true }
 }

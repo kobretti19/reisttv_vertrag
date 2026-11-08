@@ -19,7 +19,7 @@ function setup(password = "geheim") {
     });
     return { status: res.status, data: await res.json() };
   };
-  return { call, store };
+  return { call, store, env };
 }
 
 const metz = newLabelEntry({ ...emptyLabel(), marke: "Metz", preis: "499" }, null);
@@ -34,6 +34,9 @@ describe("/api/labels", () => {
   it("refuses to run without KV and password configured", async () => {
     const res = await onRequest({ env: {}, request: new Request("https://x/api/labels") });
     expect(res.status).toBe(500);
+    expect(await res.json()).toEqual({ error: "not configured", missing: ["LABELS", "LABELS_PASSWORD"] });
+    const noPw = await onRequest({ env: { LABELS: setup().env.LABELS }, request: new Request("https://x/api/labels") });
+    expect(await noPw.json()).toEqual({ error: "not configured", missing: ["LABELS_PASSWORD"] });
   });
 
   it("saves, updates, deletes and lists", async () => {
