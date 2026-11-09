@@ -8,22 +8,40 @@ export function labelPrice(input: string): string {
   return `Fr. ${francs}.${String(rappen % 100).padStart(2, "0")}`;
 }
 
-export type Label = { marke: string; modell: string; zusatz: string; preis: string };
+/** `occasion`: used device, printed with "Occasion" and the `neupreis` (new price) above the price. */
+export type Label = {
+  marke: string;
+  modell: string;
+  zusatz: string;
+  preis: string;
+  occasion: boolean;
+  neupreis: string;
+};
 export type LabelEntry = { id: string; savedAt: string; label: Label };
 
-export const emptyLabel = (): Label => ({ marke: "", modell: "", zusatz: "", preis: "" });
+export const emptyLabel = (): Label => ({
+  marke: "",
+  modell: "",
+  zusatz: "",
+  preis: "",
+  occasion: false,
+  neupreis: "",
+});
 
 const ARCHIVE_KEY = "reist-etiketten-archive";
 
-/** Merges untrusted saved data onto an empty label. */
+const TEXT_KEYS = ["marke", "modell", "zusatz", "preis", "neupreis"] as const;
+
+/** Merges untrusted saved data onto an empty label. Labels saved before `occasion` existed come back as new. */
 export function normalizeLabel(input: unknown): Label {
-  const base = emptyLabel();
-  if (!input || typeof input !== "object") return base;
+  const out = emptyLabel();
+  if (!input || typeof input !== "object") return out;
   const raw = input as Record<string, unknown>;
-  const out = { ...base };
-  for (const k of Object.keys(base) as (keyof Label)[]) {
-    if (typeof raw[k] === "string") out[k] = raw[k];
+  for (const k of TEXT_KEYS) {
+    const v = raw[k];
+    if (typeof v === "string") out[k] = v;
   }
+  out.occasion = raw.occasion === true;
   return out;
 }
 

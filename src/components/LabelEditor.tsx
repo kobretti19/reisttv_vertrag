@@ -15,21 +15,30 @@ import {
 import { Nav } from "./Nav";
 import { useLabelStore } from "./useLabelStore";
 
-const FIELDS: { key: keyof Label; label: string; placeholder: string; decimal?: boolean }[] = [
+type TextKey = "marke" | "modell" | "zusatz" | "preis" | "neupreis";
+type Field = { key: TextKey; label: string; placeholder: string; decimal?: boolean };
+
+const NAME_FIELDS: Field[] = [
   { key: "marke", label: "Marke", placeholder: "Metz" },
   { key: "modell", label: "Modell", placeholder: "Blue 32MTB4001Y" },
   { key: "zusatz", label: "Zusatz (optional)", placeholder: "TV 81 cm" },
-  { key: "preis", label: "Preis", placeholder: "499", decimal: true },
 ];
+const NEUPREIS: Field = { key: "neupreis", label: "Neupreis", placeholder: "899", decimal: true };
+const PREIS: Field = { key: "preis", label: "Preis", placeholder: "499", decimal: true };
 
 function LabelSheet({ label, copy }: { label: Label; copy?: boolean }) {
-  const line = [labelName(label), labelPrice(label.preis)].filter(Boolean).join(" ");
+  const neupreis = label.occasion ? labelPrice(label.neupreis) : "";
   return (
     <div className={copy ? "label label-copy" : "label"}>
       <Image src="/reist_logo.png" alt="Radio TV Reist" width={640} height={232} className="label-logo" priority />
       <div className="label-text">
-        <div className="label-line">{line}</div>
+        <div className="label-line">{labelName(label)}</div>
         <div className="label-zusatz">{label.zusatz.trim()}</div>
+      </div>
+      <div className="label-price-box">
+        {label.occasion && <div className="label-occasion">Occasion</div>}
+        {neupreis && <div className="label-neupreis">Neupreis {neupreis}</div>}
+        <div className="label-price">{labelPrice(label.preis)}</div>
       </div>
     </div>
   );
@@ -59,6 +68,19 @@ export function LabelEditor() {
 
   const dirty = JSON.stringify(label) !== link.snapshot;
   const n = parseCopies(copies);
+
+  const input = (f: Field) => (
+    <label key={f.key}>
+      {f.label}
+      <input
+        className="label-input"
+        value={label[f.key]}
+        onChange={(e) => setLabel((l) => ({ ...l, [f.key]: e.target.value }))}
+        placeholder={f.placeholder}
+        inputMode={f.decimal ? "decimal" : undefined}
+      />
+    </label>
+  );
 
   const open = (e: LabelEntry) => {
     setLabel(e.label);
@@ -100,18 +122,20 @@ export function LabelEditor() {
       <main className="label-page">
         <div className="label-side no-print">
           <form className="label-form" onSubmit={(e) => e.preventDefault()}>
-            {FIELDS.map((f) => (
-              <label key={f.key}>
-                {f.label}
-                <input
-                  className="label-input"
-                  value={label[f.key]}
-                  onChange={(e) => setLabel((l) => ({ ...l, [f.key]: e.target.value }))}
-                  placeholder={f.placeholder}
-                  inputMode={f.decimal ? "decimal" : undefined}
-                />
-              </label>
-            ))}
+            {NAME_FIELDS.map(input)}
+            <label>
+              Zustand
+              <select
+                className="label-input"
+                value={label.occasion ? "occasion" : "neu"}
+                onChange={(e) => setLabel((l) => ({ ...l, occasion: e.target.value === "occasion" }))}
+              >
+                <option value="neu">Neu</option>
+                <option value="occasion">Occasion</option>
+              </select>
+            </label>
+            {label.occasion && input(NEUPREIS)}
+            {input(PREIS)}
             <label>
               Anzahl Etiketten
               <input
@@ -135,7 +159,11 @@ export function LabelEditor() {
                   <li key={e.id} className={e.id === link.id ? "is-current" : undefined}>
                     <div className="label-archive-info">
                       <strong>{labelName(e.label) || "(ohne Name)"}</strong>
-                      <span>{[labelPrice(e.label.preis), e.label.zusatz.trim()].filter(Boolean).join(" · ")}</span>
+                      <span>
+                        {[e.label.occasion && "Occasion", labelPrice(e.label.preis), e.label.zusatz.trim()]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </span>
                     </div>
                     {isPending ? (
                       <span className="archive-confirm">

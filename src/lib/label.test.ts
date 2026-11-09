@@ -7,10 +7,24 @@ import {
   loadLabels,
   mergeLabels,
   newLabelEntry,
+  normalizeLabel,
   parseCopies,
   parseLabelFile,
   saveLabel,
 } from "./label";
+
+describe("normalizeLabel", () => {
+  it("keeps occasion and Neupreis", () => {
+    const l = { ...emptyLabel(), preis: "499", occasion: true, neupreis: "899" };
+    expect(normalizeLabel(l)).toEqual(l);
+  });
+  it("reads old labels without occasion as new", () => {
+    expect(normalizeLabel({ marke: "Metz", preis: "499" })).toEqual({ ...emptyLabel(), marke: "Metz", preis: "499" });
+  });
+  it("only accepts true as occasion", () => {
+    expect(normalizeLabel({ occasion: "ja", neupreis: 5 })).toEqual(emptyLabel());
+  });
+});
 
 describe("label JSON file", () => {
   it("round-trips entries", () => {

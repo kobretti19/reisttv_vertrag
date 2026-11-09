@@ -317,6 +317,27 @@
   .label-zusatz {
     font-size: 14pt;
   }
+  /* Price block, bottom right. margin-top: auto pushes it down and the name block up. */
+  .label-price-box {
+    align-self: flex-end;
+    margin-top: auto;
+    font-family: Calibri, Carlito, "Segoe UI", Arial, sans-serif;
+    line-height: 1.1;
+    text-align: right;
+  }
+  .label-occasion {
+    font-size: 16pt;
+    font-weight: 700;
+  }
+  .label-neupreis {
+    font-size: 14pt;
+  }
+  .label-price {
+    font-size: 40pt;
+    font-weight: 700;
+    color: #d00000;
+    white-space: nowrap;
+  }
 
   /* A4 sheets */
   .sheets {
