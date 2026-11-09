@@ -10,6 +10,7 @@ import {
   newLabelEntry,
   parseCopies,
   type Label,
+  type LabelDesign,
   type LabelEntry,
   type PriceForm,
 } from "@/lib/label";
@@ -27,23 +28,53 @@ const NAME_FIELDS: Field[] = [
 const NEUPREIS: Field = { key: "neupreis", label: "Neupreis", placeholder: "899", decimal: true };
 const PREIS: Field = { key: "preis", label: "Preis", placeholder: "499", decimal: true };
 
+const LOGO = { src: "/reist_logo.png", alt: "Radio TV Reist", width: 640, height: 232, priority: true };
+
 function LabelSheet({ label, copy }: { label: Label; copy?: boolean }) {
   const neupreis = label.occasion ? labelPrice(label.neupreis) : "";
-  return (
-    <div className={copy ? "label label-copy" : "label"}>
-      <Image src="/reist_logo.png" alt="Radio TV Reist" width={640} height={232} className="label-logo" priority />
-      <div className="label-text">
-        <div className="label-line">{labelName(label)}</div>
-        <div className="label-zusatz">{label.zusatz.trim()}</div>
-      </div>
-      <div className="label-price-box">
-        {label.occasion && (
-          <div>
-            <div className="label-occasion">Occasion</div>
-            {neupreis && <div className="label-neupreis">Neupreis {neupreis}</div>}
+  const cls = ["label", label.design === "tv" && "label-tv", copy && "label-copy"].filter(Boolean).join(" ");
+  const name = (
+    <div className="label-text">
+      <div className="label-line">{labelName(label)}</div>
+      <div className="label-zusatz">{label.zusatz.trim()}</div>
+    </div>
+  );
+  const info = label.occasion && (
+    <div className="label-occasion-box">
+      <div className="label-occasion">Occasion</div>
+      {neupreis && <div className="label-neupreis">Neupreis {neupreis}</div>}
+    </div>
+  );
+  const price = <div className={`label-price label-price-${label.form}`}>{labelPrice(label.preis)}</div>;
+
+  if (label.design === "tv") {
+    return (
+      <div className={cls}>
+        <div className="tv">
+          <div className="tv-screen">
+            <Image {...LOGO} className="tv-logo" />
+            {name}
           </div>
-        )}
-        <div className={`label-price label-price-${label.form}`}>{labelPrice(label.preis)}</div>
+        </div>
+        <div className="tv-stand" />
+        <div className={info ? "komoda" : "komoda komoda-solo"}>
+          {info}
+          {price}
+        </div>
+        <div className="komoda-legs">
+          <span />
+          <span />
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className={cls}>
+      <Image {...LOGO} className="label-logo" />
+      {name}
+      <div className="label-price-box">
+        {info}
+        {price}
       </div>
     </div>
   );
@@ -141,6 +172,17 @@ export function LabelEditor() {
             </label>
             {label.occasion && input(NEUPREIS)}
             {input(PREIS)}
+            <label>
+              Design
+              <select
+                className="label-input"
+                value={label.design}
+                onChange={(e) => setLabel((l) => ({ ...l, design: e.target.value as LabelDesign }))}
+              >
+                <option value="klassisch">Klassisch</option>
+                <option value="tv">Fernseher auf Kommode</option>
+              </select>
+            </label>
             <label>
               Preis-Form
               <select

@@ -14,7 +14,11 @@ export type Label = {
   occasion: boolean;
   neupreis: string;
   form: PriceForm;
+  design: LabelDesign;
 };
+/** "klassisch": logo, name and price like the paper label. "tv": name on a TV screen, price on the sideboard below. */
+export type LabelDesign = "klassisch" | "tv";
+export const LABEL_DESIGNS: LabelDesign[] = ["klassisch", "tv"];
 /** How the price is drawn: red oval or star with white text, or plain red text. */
 export type PriceForm = "oval" | "stern" | "text";
 export const PRICE_FORMS: PriceForm[] = ["oval", "stern", "text"];
@@ -28,6 +32,7 @@ export const emptyLabel = (): Label => ({
   occasion: false,
   neupreis: "",
   form: "oval",
+  design: "klassisch",
 });
 
 const ARCHIVE_KEY = "reist-etiketten-archive";
@@ -45,6 +50,7 @@ export function normalizeLabel(input: unknown): Label {
   }
   out.occasion = raw.occasion === true;
   if (PRICE_FORMS.includes(raw.form as PriceForm)) out.form = raw.form as PriceForm;
+  if (LABEL_DESIGNS.includes(raw.design as LabelDesign)) out.design = raw.design as LabelDesign;
   return out;
 }
 
