@@ -15,14 +15,14 @@ import {
 
 describe("normalizeLabel", () => {
   it("keeps occasion and Neupreis", () => {
-    const l = { ...emptyLabel(), preis: "499", occasion: true, neupreis: "899" };
+    const l = { ...emptyLabel(), preis: "499", occasion: true, neupreis: "899", form: "stern" as const };
     expect(normalizeLabel(l)).toEqual(l);
   });
   it("reads old labels without occasion as new", () => {
     expect(normalizeLabel({ marke: "Metz", preis: "499" })).toEqual({ ...emptyLabel(), marke: "Metz", preis: "499" });
   });
   it("only accepts true as occasion", () => {
-    expect(normalizeLabel({ occasion: "ja", neupreis: 5 })).toEqual(emptyLabel());
+    expect(normalizeLabel({ occasion: "ja", neupreis: 5, form: "kreis" })).toEqual(emptyLabel());
   });
 });
 
@@ -55,10 +55,10 @@ describe("mergeLabels", () => {
 });
 
 describe("labelPrice", () => {
-  it("formats parsable amounts like the paper label (Fr. 499.00)", () => {
-    expect(labelPrice("499")).toBe("Fr. 499.00");
-    expect(labelPrice("1299.5")).toBe("Fr. 1'299.50");
-    expect(labelPrice("Fr. 45.–")).toBe("Fr. 45.00");
+  it("formats parsable amounts Swiss style (499.–)", () => {
+    expect(labelPrice("499")).toBe("499.–");
+    expect(labelPrice("1299.5")).toBe("1'299.50");
+    expect(labelPrice("Fr. 45.00")).toBe("45.–");
   });
   it("keeps unparsable text as typed and empty as empty", () => {
     expect(labelPrice("auf Anfrage")).toBe("auf Anfrage");

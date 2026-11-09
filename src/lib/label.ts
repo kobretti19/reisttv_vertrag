@@ -1,14 +1,11 @@
-import { parseChf } from "./calc";
+import { formatChf, parseChf } from "./calc";
 
-/** Price as printed on the shop label: "499" → "Fr. 499.00". Text that isn't an amount is kept as typed. */
+/** Price as printed on the shop label, Swiss style: "499" → "499.–", "1299.5" → "1'299.50". Text that isn't an amount is kept as typed. */
 export function labelPrice(input: string): string {
   const rappen = parseChf(input);
-  if (rappen === null) return input.trim();
-  const francs = String(Math.floor(rappen / 100)).replace(/\B(?=(\d{3})+(?!\d))/g, "'");
-  return `Fr. ${francs}.${String(rappen % 100).padStart(2, "0")}`;
+  return rappen === null ? input.trim() : formatChf(rappen);
 }
 
-/** `occasion`: used device, printed with "Occasion" and the `neupreis` (new price) above the price. */
 export type Label = {
   marke: string;
   modell: string;
@@ -16,7 +13,11 @@ export type Label = {
   preis: string;
   occasion: boolean;
   neupreis: string;
+  form: PriceForm;
 };
+/** How the price is drawn: red oval or star with white text, or plain red text. */
+export type PriceForm = "oval" | "stern" | "text";
+export const PRICE_FORMS: PriceForm[] = ["oval", "stern", "text"];
 export type LabelEntry = { id: string; savedAt: string; label: Label };
 
 export const emptyLabel = (): Label => ({
@@ -26,6 +27,7 @@ export const emptyLabel = (): Label => ({
   preis: "",
   occasion: false,
   neupreis: "",
+  form: "oval",
 });
 
 const ARCHIVE_KEY = "reist-etiketten-archive";
@@ -42,6 +44,7 @@ export function normalizeLabel(input: unknown): Label {
     if (typeof v === "string") out[k] = v;
   }
   out.occasion = raw.occasion === true;
+  if (PRICE_FORMS.includes(raw.form as PriceForm)) out.form = raw.form as PriceForm;
   return out;
 }
 

@@ -11,6 +11,7 @@ import {
   parseCopies,
   type Label,
   type LabelEntry,
+  type PriceForm,
 } from "@/lib/label";
 import { Nav } from "./Nav";
 import { useLabelStore } from "./useLabelStore";
@@ -36,9 +37,13 @@ function LabelSheet({ label, copy }: { label: Label; copy?: boolean }) {
         <div className="label-zusatz">{label.zusatz.trim()}</div>
       </div>
       <div className="label-price-box">
-        {label.occasion && <div className="label-occasion">Occasion</div>}
-        {neupreis && <div className="label-neupreis">Neupreis {neupreis}</div>}
-        <div className="label-price">{labelPrice(label.preis)}</div>
+        {label.occasion && (
+          <div>
+            <div className="label-occasion">Occasion</div>
+            {neupreis && <div className="label-neupreis">Neupreis {neupreis}</div>}
+          </div>
+        )}
+        <div className={`label-price label-price-${label.form}`}>{labelPrice(label.preis)}</div>
       </div>
     </div>
   );
@@ -136,6 +141,18 @@ export function LabelEditor() {
             </label>
             {label.occasion && input(NEUPREIS)}
             {input(PREIS)}
+            <label>
+              Preis-Form
+              <select
+                className="label-input"
+                value={label.form}
+                onChange={(e) => setLabel((l) => ({ ...l, form: e.target.value as PriceForm }))}
+              >
+                <option value="oval">Oval (rot, weisse Schrift)</option>
+                <option value="stern">Stern (rot, weisse Schrift)</option>
+                <option value="text">Einfach (rote Schrift)</option>
+              </select>
+            </label>
             <label>
               Anzahl Etiketten
               <input
