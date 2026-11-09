@@ -57,14 +57,12 @@ function LabelSheet({ label, copy }: { label: Label; copy?: boolean }) {
           </div>
         </div>
         <div className="tv-stand" />
+        <div className="tv-base" />
         <div className={info ? "komoda" : "komoda komoda-solo"}>
           {info}
           {price}
         </div>
-        <div className="komoda-legs">
-          <span />
-          <span />
-        </div>
+        <div className="komoda-plinth" />
       </div>
     );
   }

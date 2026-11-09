@@ -341,26 +341,41 @@
     color: #ff4022;
     white-space: nowrap;
   }
-  /* Design "Fernseher auf Kommode": TV with logo and name on the screen, price on the sideboard. */
+  /* Design "Fernseher auf Kommode": a flat-screen TV (logo and name on the screen) on a black lowboard
+     that holds Occasion and the price. */
   .label-tv {
     justify-content: flex-start;
     padding: 4mm 5mm 0;
   }
+  /* Thin black bezel with a slightly thicker bottom edge and a small grey brand mark. */
   .tv {
-    width: 122mm;
-    height: 57mm;
-    padding: 2.5mm;
-    border-radius: 3mm;
-    background: #1f2937;
+    position: relative;
+    width: 124mm;
+    height: 58mm;
+    padding: 1.3mm 1.3mm 2.6mm;
+    border: 0.35mm solid #4b4b4b;
+    border-radius: 1.2mm;
+    background: linear-gradient(180deg, #1c1c1c, #050505 40%);
   }
+  .tv::after {
+    content: "";
+    position: absolute;
+    bottom: 0.9mm;
+    left: 50%;
+    width: 5mm;
+    height: 0.6mm;
+    margin-left: -2.5mm;
+    border-radius: 0.3mm;
+    background: #6b6b6b;
+  }
+  /* Screen with a faint diagonal reflection. */
   .tv-screen {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     height: 100%;
-    border-radius: 1mm;
-    background: linear-gradient(160deg, #fff 55%, #e6eef8);
+    background: linear-gradient(118deg, #fff 0%, #fbfcfd 52%, #eef1f5 52.2%, #f8f9fb 100%);
   }
   .tv-logo {
     width: 66mm;
@@ -376,23 +391,31 @@
   .label-tv .label-zusatz {
     font-size: 12pt;
   }
+  /* Pedestal stand: short neck, flat brushed-metal foot. */
   .tv-stand {
-    width: 34mm;
+    width: 9mm;
     height: 3mm;
-    border-radius: 0 0 1.5mm 1.5mm;
-    background: #1f2937;
-    clip-path: polygon(12% 0, 88% 0, 100% 100%, 0 100%);
+    background: linear-gradient(90deg, #3a3a3a, #8a8a8a 50%, #3a3a3a);
   }
+  .tv-base {
+    width: 48mm;
+    height: 1.4mm;
+    border-radius: 0.7mm;
+    background: linear-gradient(180deg, #a3a3a3, #3f3f3f);
+  }
+  /* Handleless black lowboard: light top edge, a fine groove, recessed plinth. */
   .komoda {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 140mm;
-    height: 33mm;
-    padding: 0 6mm;
-    border-top: 2.5mm solid #8a5a2b;
-    border-radius: 1mm;
-    background: #d9b48a;
+    width: 142mm;
+    height: 30mm;
+    padding: 0 7mm;
+    border-top: 0.8mm solid #5a5a5a;
+    background:
+      linear-gradient(transparent 2.6mm, #3d3d3d 2.6mm, #3d3d3d 2.9mm, transparent 2.9mm),
+      linear-gradient(180deg, #2a2a2a, #0a0a0a 60%, #000);
+    color: #fff;
     font-family: Calibri, Carlito, "Segoe UI", Arial, sans-serif;
     line-height: 1.1;
   }
@@ -412,15 +435,10 @@
   .komoda .label-price-text {
     font-size: 36pt;
   }
-  .komoda-legs {
-    display: flex;
-    justify-content: space-between;
-    width: 128mm;
-  }
-  .komoda-legs span {
-    width: 4mm;
-    height: 3mm;
-    background: #5b3a1a;
+  .komoda-plinth {
+    width: 132mm;
+    height: 2.5mm;
+    background: #000;
   }
 
   /* Oval and star: white text on the logo red (#ff4022). Colours print because .label sets print-color-adjust: exact. */
