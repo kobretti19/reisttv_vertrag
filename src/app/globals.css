@@ -338,17 +338,17 @@
   .label-price {
     font-size: 40pt;
     font-weight: 700;
-    color: #d00000;
+    color: #ff4022;
     white-space: nowrap;
   }
-  /* Oval and star: white text on red. Colours print because .label sets print-color-adjust: exact. */
+  /* Oval and star: white text on the logo red (#ff4022). Colours print because .label sets print-color-adjust: exact. */
   .label-price-oval,
   .label-price-stern {
     display: flex;
     align-items: center;
     justify-content: center;
     color: #fff;
-    background: #d00000;
+    background: #ff4022;
   }
   .label-price-oval {
     padding: 3mm 8mm;
