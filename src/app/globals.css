@@ -162,7 +162,7 @@
     color: #b91c1c;
   }
 
-  /* Price label (150 × 95 mm) */
+  /* Price label (150 × 95 mm, three per A4 sheet when printed) */
   .label-page {
     display: flex;
     flex-wrap: wrap;
@@ -671,22 +671,22 @@
   .abmachungen {
     line-height: 7mm;
   }
+  /* Labels print on A4, three stacked per sheet (3 × 95 mm = 285 mm of the 287 mm inside the margins).
+     A fourth doesn't fit: 2 × 150 mm is wider than A4 either way round. */
   @page etikett {
-    size: 150mm 95mm;
-    margin: 0;
+    size: A4;
+    margin: 5mm 0;
   }
   .label-page {
     display: block;
     padding: 0;
   }
   .label {
+    margin: 0 auto;
     box-shadow: none;
-    break-after: page;
+    break-inside: avoid;
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
-  }
-  .label:last-child {
-    break-after: auto;
   }
 }
 @media screen {

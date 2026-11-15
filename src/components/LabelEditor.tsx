@@ -78,7 +78,7 @@ function LabelSheet({ label, copy }: { label: Label; copy?: boolean }) {
   );
 }
 
-/** Shop price label, 150 × 95 mm, one per printed page (see `.label` in globals.css). */
+/** Shop price label, 150 × 95 mm, printed three per A4 sheet (see `.label` in globals.css). */
 export function LabelEditor() {
   const [label, setLabel] = useState<Label>(emptyLabel);
   const [copies, setCopies] = useState("1");
