@@ -428,7 +428,7 @@
       linear-gradient(180deg, #d9b183, #b48552 60%, #8e6337);
   }
   .komoda-solo {
-    justify-content: center;
+    justify-content: flex-end;
   }
   .komoda .label-price {
     font-size: 30pt;
